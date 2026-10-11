@@ -62,8 +62,8 @@ header{text-align:center;padding:46px 0 38px;position:relative}
 .ornament b{width:6px;height:6px;transform:rotate(45deg);border:1px solid var(--gold);display:block}
 
 /* ---------- Galeri ---------- */
-.gallery-container{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:52px 16px;padding-top:10px;align-items:start}
-.photo-card:nth-child(even){margin-top:38px} /* kolom kanan sedikit turun, efek mengambang berselang-seling */
+.gallery-container{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:30px 8px;padding-top:10px;align-items:start}
+.photo-card:nth-child(3n+2){margin-top:20px} /* kolom kanan sedikit turun, efek mengambang berselang-seling */
 
 /* Lapisan 1: fade + zoom saat scroll */
 .photo-card{
@@ -83,11 +83,11 @@ header{text-align:center;padding:46px 0 38px;position:relative}
 @keyframes bob2{0%,100%{transform:translateY(-5px) rotate(.6deg)}50%{transform:translateY(5px) rotate(-.5deg)}}
 
 .polaroid{
-  position:relative;background:var(--paper);padding:9px 9px 13px;border-radius:6px;
+  position:relative;background:var(--paper);padding:5px 5px 8px;border-radius:4px;
   border:1px solid rgba(184,147,90,.22);
   box-shadow:0 2px 4px rgba(120,95,60,.08),0 18px 38px -12px rgba(120,95,60,.28);
 }
-.photo-frame{position:relative;aspect-ratio:4/5;overflow:hidden;background:var(--cream-2);border-radius:2px}
+.photo-frame{position:relative;aspect-ratio:3/4;overflow:hidden;background:var(--cream-2);border-radius:2px}
 .photo-frame img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.92) contrast(1.02) sepia(.06);transform:scale(1.12);transition:transform 2s var(--ease)}
 .photo-card.is-visible .photo-frame img{transform:scale(1)}
 .photo-frame::after{ /* kilau cahaya di permukaan air */
@@ -97,9 +97,9 @@ header{text-align:center;padding:46px 0 38px;position:relative}
 }
 @keyframes shine{0%,55%{background-position:150% 0}100%{background-position:-60% 0}}
 
-.photo-info{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:12px 3px 0}
-.guest-name{font-family:var(--serif);font-style:italic;font-size:clamp(17px,4.6vw,22px);color:var(--ink);line-height:1.1;overflow-wrap:anywhere}
-.date{font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+.photo-info{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:7px 2px 0}
+.guest-name{font-family:var(--serif);font-style:italic;font-size:clamp(11px,3.3vw,16px);color:var(--ink);line-height:1.1;overflow-wrap:anywhere}
+.date{font-size:7px;letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
 
 /* Bayangan & riak di permukaan air */
 .shadow{
@@ -173,10 +173,13 @@ footer{text-align:center;margin-top:70px;font-size:10px;letter-spacing:.34em;tex
 .toast.show{opacity:1;transform:translate(-50%,0)}
 
 @media(min-width:700px){
-  .app{padding:22px 28px 80px}
-  .gallery-container{gap:64px 30px}
-  .photo-card:nth-child(even){margin-top:56px}
-  .polaroid{padding:12px 12px 16px}
+  .app{padding:22px 28px 80px;max-width:1040px}
+  .gallery-container{grid-template-columns:repeat(4,minmax(0,1fr));gap:44px 18px}
+  .photo-card:nth-child(3n+2){margin-top:0}
+  .photo-card:nth-child(even){margin-top:34px}
+  .polaroid{padding:8px 8px 11px}
+  .guest-name{font-size:clamp(14px,1.7vw,18px)}
+  .date{font-size:8px}
 }
 @media(prefers-reduced-motion:reduce){
   body::before,.float,.shadow,.ripple,.photo-frame::after{animation:none!important}
@@ -273,7 +276,7 @@ async function loadGallery(){
           <span class="ripple"></span><span class="ripple r2"></span>
           <span class="shadow"></span>
           <div class="polaroid">
-            <div class="photo-frame"><img src="${esc(item.imageUrl)}" alt="Foto Tamu" loading="lazy"></div>
+            <div class="photo-frame"><img src="${esc(cld(item.imageUrl, T_THUMB))}" alt="Foto Tamu" loading="lazy" decoding="async"></div>
             <div class="photo-info">
               <span class="guest-name">${esc(item.guestName || 'Tamu Kehormatan')}</span>
               <span class="date">${esc(dateStr)}</span>
@@ -301,6 +304,15 @@ async function loadGallery(){
   }
 }
 
+/* ---------- Hemat bandwidth: Cloudinary f_auto,q_auto ---------- */
+function cld(url, t){
+  const m = '/image/upload/';
+  return (typeof url === 'string' && url.includes('res.cloudinary.com') && url.includes(m) && !url.includes(m + 'f_auto'))
+    ? url.replace(m, m + t + '/') : url;
+}
+const T_THUMB = 'f_auto,q_auto:eco,w_400,c_limit';   // kartu grid (kecil)
+const T_VIEW  = 'f_auto,q_auto,w_1080,c_limit';      // foto besar saat di-tap
+
 /* ---------- Pratinjau foto + unduh ---------- */
 const viewer = document.getElementById('viewer');
 const vImg = document.getElementById('viewerImg');
@@ -317,7 +329,7 @@ function toast(msg){
 }
 function openViewer(card){
   current = { src: card.dataset.src, name: card.dataset.name, date: card.dataset.date, message: card.dataset.message || '' };
-  vImg.src = current.src;
+  vImg.src = cld(current.src, T_VIEW);   // unduh tetap memakai file asli (current.src)
   vName.textContent = current.name;
   vDate.textContent = current.date;
   vMsg.textContent = current.message;
