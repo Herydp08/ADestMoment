@@ -146,6 +146,17 @@ footer{text-align:center;margin-top:70px;font-size:10px;letter-spacing:.34em;tex
 .viewer-caption{text-align:center}
 .viewer-caption .v-name{font-family:var(--serif);font-style:italic;font-size:24px;line-height:1.1}
 .viewer-caption .v-date{display:block;margin-top:5px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.viewer-caption{max-width:min(100%,460px)}
+.v-message{
+  display:none;position:relative;margin:14px auto 0;padding:14px 20px;max-height:112px;overflow-y:auto;
+  background:rgba(255,250,241,.85);border:1px solid var(--gold-soft);border-radius:10px;
+  font-family:var(--serif);font-style:italic;font-weight:500;font-size:17px;line-height:1.55;color:var(--ink);
+  white-space:pre-wrap;overflow-wrap:anywhere;text-align:center;
+}
+.v-message::before{content:"\201C";position:absolute;top:-6px;left:10px;font-size:38px;line-height:1;color:var(--gold)}
+.viewer.has-msg .v-message{display:block}
+.viewer.has-msg .viewer-stage{max-height:calc(100svh - 330px)}
+.viewer.has-msg .viewer-stage img{max-height:calc(100svh - 350px)}
 .viewer-actions{display:flex;gap:12px;width:min(100%,420px)}
 .v-btn{
   flex:1;display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:15px 12px;border-radius:99px;cursor:pointer;
@@ -195,7 +206,8 @@ footer{text-align:center;margin-top:70px;font-size:10px;letter-spacing:.34em;tex
 
 <div class="viewer" id="viewer" role="dialog" aria-modal="true" aria-label="Pratinjau foto" aria-hidden="true">
   <div class="viewer-stage"><img id="viewerImg" alt="Foto Tamu"></div>
-  <div class="viewer-caption"><span class="v-name" id="viewerName"></span><span class="v-date" id="viewerDate"></span></div>
+  <div class="viewer-caption"><span class="v-name" id="viewerName"></span><span class="v-date" id="viewerDate"></span>
+    <p class="v-message" id="viewerMsg"></p></div>
   <div class="viewer-actions">
     <button class="v-btn ghost" id="btnBack" type="button">&larr; Kembali</button>
     <button class="v-btn primary" id="btnDownload" type="button">Unduh Gambar</button>
@@ -275,6 +287,7 @@ async function loadGallery(){
       card.dataset.src  = item.imageUrl;
       card.dataset.name = item.guestName || 'Tamu Kehormatan';
       card.dataset.date = dateStr;
+      card.dataset.message = String(item.message || '').trim();
       container.appendChild(card);
       n++;
     });
@@ -293,6 +306,7 @@ const viewer = document.getElementById('viewer');
 const vImg = document.getElementById('viewerImg');
 const vName = document.getElementById('viewerName');
 const vDate = document.getElementById('viewerDate');
+const vMsg = document.getElementById('viewerMsg');
 const btnDownload = document.getElementById('btnDownload');
 const toastEl = document.getElementById('toast');
 let current = null, lastFocus = null, toastTimer;
@@ -302,10 +316,13 @@ function toast(msg){
   clearTimeout(toastTimer); toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2600);
 }
 function openViewer(card){
-  current = { src: card.dataset.src, name: card.dataset.name, date: card.dataset.date };
+  current = { src: card.dataset.src, name: card.dataset.name, date: card.dataset.date, message: card.dataset.message || '' };
   vImg.src = current.src;
   vName.textContent = current.name;
   vDate.textContent = current.date;
+  vMsg.textContent = current.message;
+  viewer.classList.toggle('has-msg', !!current.message);
+  vMsg.scrollTop = 0;
   lastFocus = document.activeElement;
   viewer.classList.add('open'); viewer.setAttribute('aria-hidden','false');
   document.body.style.overflow = 'hidden';
