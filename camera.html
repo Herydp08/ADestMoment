@@ -5,71 +5,90 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Adhy & Destin - Disposable Camera</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Fraunces:ital,wght@1,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Mono:wght@400;700&family=Fraunces:ital,wght@1,600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0c0b0a;
-    --panel: #161412;
-    --border: #292420;
-    --ink: #f4ecdf;
-    --muted: #8c8275;
-    --accent: #ff6b35;
-    --accent-glow: rgba(255, 107, 53, 0.35);
+    --bg: #F8EFE4;
+    --panel: #FFF8EF;
+    --panel-2: #F3E4D6;
+    --border: #E6D3C3;
+    --ink: #5B4140;
+    --muted: #A58E88;
+    --accent: #B78483;
+    --accent-dark: #9A6A69;
+    --accent-soft: #EBD3CF;
+    --accent-glow: rgba(183, 132, 131, 0.38);
+    --shadow: rgba(120, 80, 70, 0.16);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  html, body { min-height: 100vh; background: var(--bg); color: var(--ink); font-family: 'Space Mono', monospace; }
-  
+  html, body { min-height: 100vh; background: var(--bg); color: var(--ink); font-family: 'DM Sans', system-ui, sans-serif; }
+  body { background: radial-gradient(120% 60% at 50% 0%, #FFF8EF 0%, var(--bg) 70%); background-attachment: fixed; }
+
   .app { max-width: 440px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; padding: 16px; gap: 12px; position: relative; z-index: 1; }
   header { display: flex; justify-content: space-between; align-items: center; padding: 4px 6px; }
-  .brand h2 { font-family: 'Fraunces', serif; font-style: italic; font-size: 20px; color: var(--ink); cursor: pointer; user-select: none; }
-  .brand p { font-size: 10px; color: var(--muted); letter-spacing: 0.5px; margin-top: 1px; }
-  .date-badge { font-size: 11px; color: var(--accent); font-weight: 700; letter-spacing: 1px; }
-  
-  .camera-box { background: var(--panel); border-radius: 28px; padding: 12px; border: 1px solid var(--border); box-shadow: 0 20px 40px rgba(0,0,0,0.6); display: flex; flex-direction: column; gap: 12px; }
-  .viewfinder { position: relative; aspect-ratio: 3/4; border-radius: 20px; overflow: hidden; background: #111; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; }
-  
-  video { width: 100%; height: 100%; object-fit: cover; display: block; background: #000; }
+  .brand h2 { font-family: 'Fraunces', serif; font-style: italic; font-size: 22px; color: var(--accent-dark); cursor: pointer; user-select: none; }
+  .brand p { font-size: 11px; color: var(--muted); letter-spacing: 0.3px; margin-top: 1px; }
+  .date-badge { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--accent); font-weight: 700; letter-spacing: 1px; background: var(--accent-soft); padding: 5px 10px; border-radius: 99px; }
+
+  .camera-box { background: var(--panel); border-radius: 28px; padding: 12px; border: 1px solid var(--border); box-shadow: 0 18px 36px var(--shadow); display: flex; flex-direction: column; gap: 12px; }
+  .viewfinder { position: relative; aspect-ratio: 3/4; border-radius: 20px; overflow: hidden; background: var(--panel-2); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; }
+
+  video { width: 100%; height: 100%; object-fit: cover; display: block; background: var(--panel-2); }
   #preview { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: none; z-index: 2; }
-  
+
   .grain { position: absolute; inset: 0; pointer-events: none; opacity: 0.22; mix-blend-mode: overlay; z-index: 3; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence baseFrequency='.8' numOctaves='3'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='.7'/></svg>"); }
   .flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 4; }
   .flash.on { opacity: 1; transition: none; }
-  
-  .lens-switcher { position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); display: flex; background: rgba(12, 11, 10, 0.8); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.12); padding: 4px 8px; border-radius: 99px; gap: 6px; z-index: 5; }
-  .lens-btn { background: transparent; border: none; color: var(--muted); font: inherit; font-size: 11px; padding: 5px 12px; border-radius: 99px; cursor: pointer; transition: all 0.2s; }
-  .lens-btn.active { background: var(--ink); color: #0c0b0a; font-weight: 700; }
-  
-  .control-panel { background: #11100e; border-radius: 20px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); }
-  .btn-icon { width: 44px; height: 44px; border-radius: 50%; background: var(--panel); border: 1px solid var(--border); color: var(--ink); display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; transition: transform 0.1s, background 0.2s; }
+
+  .lens-switcher { position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); display: flex; background: rgba(255, 248, 239, 0.82); backdrop-filter: blur(8px); border: 1px solid rgba(183,132,131,0.3); padding: 4px 8px; border-radius: 99px; gap: 6px; z-index: 5; }
+  .lens-btn { background: transparent; border: none; color: var(--muted); font: inherit; font-size: 12px; padding: 5px 12px; border-radius: 99px; cursor: pointer; transition: all 0.2s; }
+  .lens-btn.active { background: var(--accent); color: #fff; font-weight: 700; }
+
+  .control-panel { background: var(--panel-2); border-radius: 20px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); }
+  .btn-icon { width: 44px; height: 44px; border-radius: 50%; background: var(--panel); border: 1px solid var(--border); color: var(--accent-dark); display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; transition: transform 0.1s, background 0.2s; }
   .btn-icon:active { transform: scale(0.92); }
   .btn-icon.active-flash { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
-  
+
   .counter-badge { width: 54px; height: 54px; border-radius: 50%; background: var(--panel); border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: default; }
-  .counter-num { font-size: 16px; font-weight: 700; color: var(--accent); line-height: 1; }
-  .counter-lbl { font-size: 8px; color: var(--muted); text-transform: uppercase; margin-top: 2px; }
-  
-  .shutter-main { width: 72px; height: 72px; border-radius: 50%; border: 3px solid #2e2621; background: radial-gradient(circle at 35% 30%, #ff8a55, var(--accent) 60%, #b84102); box-shadow: 0 5px 0 #6e2501, 0 8px 20px var(--accent-glow); cursor: pointer; transition: transform 0.1s; }
-  .shutter-main:active { transform: translateY(3px); box-shadow: 0 2px 0 #6e2501; }
-  .shutter-main:disabled { filter: grayscale(1); opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+  .counter-num { font-family: 'Space Mono', monospace; font-size: 16px; font-weight: 700; color: var(--accent); line-height: 1; }
+  .counter-lbl { font-size: 9px; color: var(--muted); margin-top: 2px; }
+
+  .shutter-main { width: 72px; height: 72px; border-radius: 50%; border: 3px solid #FFF8EF; background: radial-gradient(circle at 35% 30%, #D3A5A3, var(--accent) 60%, #94615F); box-shadow: 0 0 0 2px var(--accent-soft), 0 5px 0 #8A5755, 0 8px 20px var(--accent-glow); cursor: pointer; transition: transform 0.1s; }
+  .shutter-main:active { transform: translateY(3px); box-shadow: 0 0 0 2px var(--accent-soft), 0 2px 0 #8A5755; }
+  .shutter-main:disabled { filter: grayscale(1); opacity: 0.45; cursor: not-allowed; box-shadow: none; }
+
+  /* Pesan & kesan (muncul setelah jepret) */
+  .message-panel { display: none; flex-direction: column; gap: 8px; background: var(--panel-2); border: 1px solid var(--border); border-radius: 20px; padding: 14px; }
+  .message-panel label { font-family: 'Fraunces', serif; font-style: italic; font-size: 17px; color: var(--accent-dark); }
+  .message-panel .hint { font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .message-panel textarea { width: 100%; min-height: 96px; resize: none; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--border); background: var(--panel); color: var(--ink); font: inherit; font-size: 14px; line-height: 1.5; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+  .message-panel textarea::placeholder { color: #C2AFA9; }
+  .message-panel textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .message-panel textarea.invalid { border-color: #C96B6B; box-shadow: 0 0 0 3px rgba(201,107,107,0.2); }
+  .char-count { align-self: flex-end; font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted); }
 
   .actions { display: none; gap: 10px; }
-  .actions button { flex: 1; padding: 14px; border-radius: 14px; border: none; font: inherit; font-weight: 700; font-size: 12px; text-transform: uppercase; cursor: pointer; transition: transform 0.1s; }
+  .actions button { flex: 1; padding: 14px; border-radius: 14px; border: none; font: inherit; font-weight: 700; font-size: 13px; cursor: pointer; transition: transform 0.1s; }
   .actions button:active { transform: scale(0.98); }
-  .retake { background: var(--panel); color: var(--muted); border: 1px solid var(--border); }
+  .actions button:disabled { opacity: 0.6; cursor: wait; }
+  .retake { background: var(--panel); color: var(--accent-dark); border: 1px solid var(--border) !important; }
   .save { background: var(--accent); color: #fff; box-shadow: 0 4px 15px var(--accent-glow); }
-  
-  .status { text-align: center; font-size: 11px; color: var(--muted); min-height: 18px; }
 
-  .modal { position: fixed; inset: 0; background: rgba(12,11,10,0.92); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; padding: 24px; z-index: 99; }
-  .card { background: var(--panel); padding: 24px; border-radius: 24px; width: 100%; max-width: 340px; text-align: center; border: 1px solid var(--border); box-shadow: 0 20px 40px rgba(0,0,0,0.8); }
-  .card h2 { font-family: 'Fraunces', serif; font-style: italic; font-size: 22px; margin-bottom: 6px; }
-  .card p { font-size: 11px; color: var(--muted); margin-bottom: 16px; line-height: 1.5; }
-  .card input, .card select { width: 100%; margin-bottom: 16px; padding: 12px 16px; border-radius: 12px; border: 1px solid var(--border); background: #0c0b0a; color: var(--ink); font: inherit; outline: none; }
+  .status { text-align: center; font-size: 12px; color: var(--accent-dark); min-height: 18px; }
+
+  .modal { position: fixed; inset: 0; background: rgba(91,65,64,0.45); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; padding: 24px; z-index: 99; }
+  .card { background: var(--panel); padding: 24px; border-radius: 24px; width: 100%; max-width: 340px; text-align: center; border: 1px solid var(--border); box-shadow: 0 20px 40px var(--shadow); }
+  .card h2 { font-family: 'Fraunces', serif; font-style: italic; font-size: 24px; margin-bottom: 6px; color: var(--accent-dark); }
+  .card p { font-size: 12px; color: var(--muted); margin-bottom: 16px; line-height: 1.6; }
+  .card input, .card select { width: 100%; margin-bottom: 16px; padding: 12px 16px; border-radius: 12px; border: 1px solid var(--border); background: #fff; color: var(--ink); font: inherit; outline: none; }
+  .card input:focus, .card select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
   .card button { width: 100%; padding: 12px; border-radius: 12px; border: none; background: var(--accent); color: #fff; font: inherit; font-weight: 700; cursor: pointer; box-shadow: 0 4px 15px var(--accent-glow); }
-  .card .btn-secondary { background: var(--border); color: var(--ink); margin-top: 8px; box-shadow: none; }
+  .card .btn-secondary { background: var(--border); color: var(--accent-dark); margin-top: 8px; box-shadow: none; }
 
-  #camStartOverlay { position: absolute; inset: 0; background: rgba(0,0,0,0.8); z-index: 6; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 20px; text-align: center; }
-  #camStartOverlay button { padding: 10px 18px; background: var(--accent); border: none; border-radius: 99px; color: #fff; font-family: inherit; font-size: 11px; font-weight: 700; cursor: pointer; }
+  #camStartOverlay { position: absolute; inset: 0; background: rgba(248,239,228,0.92); z-index: 6; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 20px; text-align: center; }
+  #camStartOverlay button { padding: 10px 18px; background: var(--accent); border: none; border-radius: 99px; color: #fff; font-family: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 </head>
 <body>
@@ -107,6 +126,13 @@
       <a class="btn-icon" href="gallery.html" style="text-decoration:none;" title="Lihat Galeri">▦</a>
     </div>
 
+    <div class="message-panel" id="messagePanel">
+      <label for="messageInput">Pesan & Kesan</label>
+      <p class="hint">Tulis ucapan atau kesan kamu untuk Adhy & Destin. Akan tampil bersama foto ini di galeri.</p>
+      <textarea id="messageInput" maxlength="200" placeholder="Selamat ya! Semoga bahagia selalu..."></textarea>
+      <span class="char-count" id="charCount">0/200</span>
+    </div>
+
     <div class="actions" id="actions">
       <button class="retake" id="retake">Ulangi</button>
       <button class="save" id="save">Simpan & Upload</button>
@@ -142,8 +168,8 @@
         <option value="12">12 Foto</option>
         <option value="15" selected>15 Foto</option>
       </select>
-      <button id="resetQuotaBtn" style="background:#ff6b35; margin-top:8px;">Simpan Pengaturan</button>
-      <button id="resetLocalUsedBtn" style="background:#d9534f; margin-top:8px;">Reset Kuota HP Ini</button>
+      <button id="resetQuotaBtn" style="background:#B78483; margin-top:8px;">Simpan Pengaturan</button>
+      <button id="resetLocalUsedBtn" style="background:#C96B6B; margin-top:8px;">Reset Kuota HP Ini</button>
       <button class="btn-secondary" id="closeAdminControl">Tutup</button>
     </div>
   </div>
@@ -312,8 +338,8 @@ $('shutter').onclick = ()=>{
   
   const stampText = `'${yy} ${mm} ${dd}`;
   ctx.font = 'bold 38px "Space Mono", monospace'; 
-  ctx.fillStyle = '#ff7b3d';
-  ctx.shadowColor = 'rgba(0,0,0,0.8)';
+  ctx.fillStyle = '#F7D9CC';
+  ctx.shadowColor = 'rgba(91,65,64,0.8)';
   ctx.shadowBlur = 4;
   ctx.textAlign = 'right'; 
   ctx.fillText(stampText, c.width - 35, c.height - 35);
@@ -322,19 +348,40 @@ $('shutter').onclick = ()=>{
     blob = b; 
     $('preview').src = URL.createObjectURL(b); 
     $('preview').style.display = 'block';$('controls').style.display = 'none'; 
+    $('messagePanel').style.display = 'flex';
     $('actions').style.display = 'flex';$('filters').style.display = 'none'; 
+    $('messageInput').value = ''; updateCharCount();
+    status('Tulis pesan & kesan kamu dulu ya ✍️');
   }, 'image/jpeg', 0.90);
 };
+
+function updateCharCount(){
+  $('charCount').textContent = $('messageInput').value.length + '/200';
+}
+$('messageInput').addEventListener('input', () => {
+  $('messageInput').classList.remove('invalid');
+  updateCharCount();
+});
 
 function resetView(){
   blob = null; 
   $('preview').style.display = 'none';$('controls').style.display = 'flex'; 
+  $('messagePanel').style.display = 'none';
+  $('messageInput').value = ''; $('messageInput').classList.remove('invalid');
   $('actions').style.display = 'none';$('filters').style.display = 'flex';
+  status('');
 }
 $('retake').onclick = resetView;
 
 $('save').onclick = async ()=>{
   if (!blob || busy) return; 
+  const message = $('messageInput').value.trim();
+  if (!message) {
+    $('messageInput').classList.add('invalid');
+    $('messageInput').focus();
+    status('Pesan & kesan wajib diisi sebelum upload.');
+    return;
+  }
   busy = true; 
   $('save').disabled = true; 
   status('Mengunggah foto...');
@@ -351,7 +398,7 @@ $('save').onclick = async ()=>{
     if (!r.ok) throw new Error(j.error ? j.error.message : 'Gagal upload');
     
     const queryParams = new URLSearchParams({
-      action: 'save', guestId, guestName, filter: current,
+      action: 'save', guestId, guestName, filter: current, message,
       imageUrl: j.secure_url, publicId: j.public_id, width: j.width, height: j.height
     });
 
