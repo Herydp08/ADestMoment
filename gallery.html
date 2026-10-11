@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Galeri Foto - Adhy & Destin</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Fraunces:ital,wght@1,600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0b0a;
+    --panel: #161412;
+    --border: #292420;
+    --ink: #f4ecdf;
+    --muted: #8c8275;
+    --accent: #ff6b35;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { min-height: 100%; background: var(--bg); color: var(--ink); font-family: 'Space Mono', monospace; }
+  .app { max-width: 440px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; padding: 16px; gap: 16px; }
+  header { display: flex; justify-content: space-between; align-items: center; padding: 4px 6px; }
+  .brand h2 { font-family: 'Fraunces', serif; font-style: italic; font-size: 19px; color: var(--ink); }
+  .brand p { font-size: 10px; color: var(--muted); letter-spacing: 0.5px; margin-top: 1px; }
+  .back-btn { background: var(--panel); border: 1px solid var(--border); color: var(--ink); padding: 6px 14px; border-radius: 99px; font: inherit; font-size: 11px; text-decoration: none; cursor: pointer; transition: background 0.2s; }
+  .back-btn:hover { background: var(--border); }
+  
+  .gallery-container { display: flex; flex-direction: column; gap: 16px; padding-bottom: 30px; }
+  .photo-card { background: var(--panel); border-radius: 20px; padding: 12px; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.4); display: flex; flex-direction: column; gap: 10px; }
+  .photo-frame { position: relative; aspect-ratio: 1/1; border-radius: 14px; overflow: hidden; background: #000; border: 1px solid var(--border); }
+  .photo-frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .photo-info { display: flex; justify-content: space-between; align-items: center; padding: 0 4px; font-size: 11px; color: var(--muted); }
+  .guest-name { color: var(--ink); font-weight: 700; }
+  .empty-state { text-align: center; color: var(--muted); font-size: 12px; margin-top: 60px; line-height: 1.6; }
+  .loading { text-align: center; color: var(--muted); font-size: 12px; margin-top: 40px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">
+      <h2>Adhy & Destin</h2>
+      <p>Galeri Momen Spesial</p>
+    </div>
+    <a href="index.html" class="back-btn">← Kamera</a>
+  </header>
+
+  <div class="gallery-container" id="galleryContainer">
+    <div class="loading" id="loadingText">Memuat galeri foto... ⏳</div>
+  </div>
+</div>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbzyyRyNx3NFHa5UNwcRgSUW2iTL8l6FLFoenCAP05l1cRW8i6vf1COi4x0GLMl7Rvzz/exec";
+
+async function loadGallery() {
+  const container = document.getElementById('galleryContainer');
+  try {
+    const res = await fetch(API_URL, {
+      method: 'GET',
+      redirect: 'follow'
+    });
+    
+    if (!res.ok) {
+      throw new Error(`HTTP Error: ${res.status}`);
+    }
+
+    const data = await res.json();
+    container.innerHTML = '';
+
+    if (!Array.isArray(data) || data.length === 0) {
+      container.innerHTML = '<div class="empty-state">Belum ada foto yang di-upload.<br>Jadilah yang pertama mengambil foto! 📸</div>';
+      return;
+    }
+
+    data.reverse().forEach(item => {
+      if (!item.imageUrl) return;
+
+      const card = document.createElement('div');
+      card.className = 'photo-card';
+
+      let dateStr = '';
+      if (item.timestamp) {
+        try {
+          dateStr = new Date(item.timestamp).toLocaleString('id-ID', {
+            dateStyle: 'medium',
+            timeStyle: 'short'
+          });
+        } catch(e) {
+          dateStr = '';
+        }
+      }
+
+      card.innerHTML = `
+        <div class="photo-frame">
+          <img src="${item.imageUrl}" alt="Foto Tamu" loading="lazy">
+        </div>
+        <div class="photo-info">
+          <span class="guest-name">${item.guestName || 'Tamu Kehormatan'}</span>
+          <span>${dateStr}</span>
+        </div>
+      `;
+      container.appendChild(card);
+    });
+
+  } catch (err) {
+    console.error('Fetch error:', err);
+    container.innerHTML = `<div class="empty-state" style="color:#ff6b35;">
+      Gagal memuat galeri.<br>
+      <small style="font-size:10px; color:var(--muted);">${err.message}</small>
+    </div>`;
+  }
+}
+
+loadGallery();
+</script>
+</body>
+</html>
