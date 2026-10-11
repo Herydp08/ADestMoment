@@ -457,7 +457,7 @@ function takePhoto(){
   setTimeout(() => $('flash').classList.remove('on'), 80);
 
   const F = FILTERS[current], c = $('canvas'), ctx = c.getContext('2d');
-  const W = 1200, H = 1600;               // rasio 3:4 = sama dengan viewfinder
+  const W = 1080, H = 1440;               // rasio 3:4 = sama dengan viewfinder
   c.width = W; c.height = H;
 
   // Crop "cover" yang sama persis seperti preview (tidak ada lagi zoom tiba-tiba)
@@ -522,7 +522,7 @@ function takePhoto(){
     ctx.shadowBlur = 0;
   }
 
-  c.toBlob(b => {
+  const done = b => {
     blob = b;
     $('preview').src = URL.createObjectURL(b);
     $('preview').style.display = 'block'; $('vf').classList.add('shot');
@@ -530,7 +530,12 @@ function takePhoto(){
     $('messagePanel').style.display = 'flex'; $('actions').style.display = 'flex';
     $('messageInput').value = ''; updateCharCount();
     status('Tulis pesan & kesan kamu dulu ya ✍️');
-  }, 'image/jpeg', 0.92);
+  };
+  // WebP kualitas 0.82 (jauh lebih kecil). Safari lama tidak bisa encode WebP -> otomatis pakai JPEG 0.82
+  c.toBlob(b => {
+    if (b && b.type === 'image/webp') done(b);
+    else c.toBlob(done, 'image/jpeg', 0.82);
+  }, 'image/webp', 0.82);
 }
 
 $('shutter').onclick = () => {
